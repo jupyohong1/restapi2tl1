@@ -28,5 +28,5 @@ app.listen(port, () => {
 // var ems_port = 34271;
 const emsPort = 6200;
 const emsIP = '127.0.0.1';
-// var ems_ip = '192.168.7.250';
+// var ems_ip = '210.114.89.124';
 sock.connect(emsPort, emsIP);
