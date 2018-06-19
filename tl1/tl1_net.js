@@ -31,7 +31,7 @@ TL1_NET.parseData2Json = function(TL1RecvData) {
       let ep = item.indexOf(',');
       let tid = item.slice(sp, ep);
 
-      let= ep+1;
+      sp = ep+1;
       ep = item.indexOf(',', sp);
       let neName = item.slice(sp, ep);
 
