@@ -3,7 +3,7 @@ const express = require('express');
 
 const app = express();
 const bodyParser = require('body-parser');
-const sock = require('./sock/sock').sock;
+const sock = require('./sock/sock');
 
 // Middlewares
 app.use(bodyParser.json());

@@ -4,6 +4,7 @@ const sock = {};
 let client;
 const iconv = require('iconv-lite');
 const TL1_COMMON = require('../tl1/tl1_common');
+const util = require('../util/util');
 
 const CommMap = new Map();
 
@@ -29,6 +30,7 @@ sock.connect = function(PORT, IP) {
     const tl1Data = new TL1_COMMON.GetRecvMsg();
     tl1Data.parseHdr(recvData);
     const strKey = makeCommKey(tl1Data.ctag);
+    console.log('recv key [%s]', strKey);
     // CommMap.set(strKey, recv_data);
     CommMap.set(strKey, tl1Data);
   });
@@ -103,8 +105,8 @@ sock.getRecvData = async function(tid, ctag, errCount) {
 
   if (bIsReceived) {
     if (recvData != undefined) {
-      // return {ret: true, recvData: recvData};
-      return recvData;
+      return {result: true, data: recvData};
+      // return recvData;
     } else {
       errCount++;
     }
@@ -113,14 +115,20 @@ sock.getRecvData = async function(tid, ctag, errCount) {
   if (errCount > 20) {
     let message = 'not found data, tid: ' + tid + ', ctag: ' + ctag;
     message += ', errCount: ' + errCount;
-    // return {ret: false, recvData: util.successFalse(500, message)};
-    return util.successFalse(500, message);
+
+    console.log(message);
+    return {result: false, data: util.successFalse(500, message)};
+    // return util.successFalse(500, message);
   } else {
     await sock.getRecvData(tid, ctag, errCount);
   }
 };
 
-module.exports = {
-  sock,
-  CommMap,
+sock.DeleteCommData = function(tid, ctag) {
+  const key = makeCommKey(ctag);
+  if (CommMap.get(key) != undefined) {
+    CommMap.delete(key);
+  }
 };
+
+module.exports = sock;
