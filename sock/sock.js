@@ -19,7 +19,7 @@ sock.connect = function(PORT, IP) {
   client = net.connect({port: PORT, host: IP}, () => {
     sock.bIsConnected = true;
     sock.status = 'CONN';
-    logger.log('info', 'connect success IP: %s, PORT: %s', IP, PORT);
+    logger.info('connect success IP: %s, PORT: %s', IP, PORT);
   });
 
   client.on('data', (data) => {
@@ -44,19 +44,19 @@ sock.connect = function(PORT, IP) {
   client.on('end', () => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    logger.info('client disconnected');
+    logger.warn('client disconnected');
   });
 
   client.on('error', (err) => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    logger.info(err);
+    logger.error(err);
   });
 
   client.on('close', (err) => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    logger.info(err);
+    logger.warn(err);
   });
 };
 

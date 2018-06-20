@@ -18,9 +18,27 @@ const myLevels = {
   },
 };
 
+/**
+ * return First Initial of level name
+ * @param {string} level - level name
+ * @return {string} First Initial of level name
+ */
+function getLevelInitial(level) {
+  switch (level) {
+    case 'error': return 'E';
+    case 'warn': return 'W';
+    case 'info': return 'I';
+    case 'debug': return 'D';
+    case 'trace': return 'T';
+    default: return 'UNKNOWN';
+  }
+}
+
 const myFormat = winston.format.printf((info) => {
-  return `[${info.timestamp}][${info.level}] ${info.message}`;
+  return `${getLevelInitial(info.level)} ${info.timestamp} : ${info.message}`;
 });
+
+const tsFormat = () => (new Date()).toLocaleTimeString();
 
 winston.addColors(myLevels.colors);
 const logger = winston.createLogger({
@@ -37,10 +55,16 @@ const logger = winston.createLogger({
   transports: [
     // console
     new (winston.transports.Console)({
+      level: 'trace',
       colorize: true,
     }),
     // file
-    // new winston.transport.File({filename: 'error.log', level: 'error'})
+    new (require('winston-daily-rotate-file'))({
+      level: 'info',
+      filename: 'log/log',
+      datePattern: 'YYYY-MM-DD',
+      prepend: true,
+    }),
   ],
 });
 

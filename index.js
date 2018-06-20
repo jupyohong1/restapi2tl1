@@ -1,6 +1,6 @@
 // index.js
 const express = require('express');
-
+const logger = require('./util/logger');
 const app = express();
 const bodyParser = require('body-parser');
 const sock = require('./sock/sock');
@@ -21,7 +21,7 @@ app.use('/api', require('./routers/api/router'));
 // server
 const port = 3000;
 app.listen(port, () => {
-  console.log('listening on port: %d', port);
+  logger.info('listening on Web port: %d', port);
 });
 
 // ems connect
