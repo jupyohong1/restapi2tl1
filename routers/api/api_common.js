@@ -1,4 +1,5 @@
 // routers/api/api_common.js
+const logger = require('../../util/logger');
 const TL1_API = require('../../tl1/tl1_api');
 const sock = require('../../sock/sock');
 const util = require('../../util/util');
@@ -12,12 +13,12 @@ API_COMMON.process = async function(cmd, tid, aid, param) {
       let recvTL1Data =
         await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
       if (recvTL1Data == undefined) {
-        console.log('Socket RecvData is undefined, retry!');
+        logger.info('Socket RecvData is undefined, retry!');
         recvTL1Data =
           await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
       }
 
-      console.log('return key[%s]', sendTL1Data.ctag);
+      logger.info('return key[%s]', sendTL1Data.ctag);
       if (recvTL1Data.result) {
         const resTL1Data = TL1_API.parseData2Json(cmd, recvTL1Data.data);
         sock.DeleteCommData(sendTL1Data.tid, sendTL1Data.ctag);
@@ -26,13 +27,13 @@ API_COMMON.process = async function(cmd, tid, aid, param) {
         return recvTL1Data.data;
       }
     } catch (exception) {
-      console.log(exception);
+      logger.info(exception);
       return util.successFalse(exception);
     }
   } else {
     let message = 'TL1 Send fail!';
-    console.log('return key[%s]', sendTL1Data.ctag);
-    console.log(message);
+    logger.info('return key[%s]', sendTL1Data.ctag);
+    logger.info(message);
     return util.successFalse(message);
   }
 };

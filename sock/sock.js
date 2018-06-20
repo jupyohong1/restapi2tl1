@@ -1,3 +1,4 @@
+const logger = require('../util/logger');
 const net = require('net');
 
 const sock = {};
@@ -18,50 +19,50 @@ sock.connect = function(PORT, IP) {
   client = net.connect({port: PORT, host: IP}, () => {
     sock.bIsConnected = true;
     sock.status = 'CONN';
-    console.log('connect success, IP: %s, PORT: %d', IP, PORT);
+    logger.log('info', 'connect success IP: %s, PORT: %s', IP, PORT);
   });
 
   client.on('data', (data) => {
-    // console.log('socket, recv data!!!');
+    // logger.info('socket, recv data!!!');
     sock.bIsReceived = true;
     const strContent = new Buffer(data);
     data = iconv.decode(strContent, 'euckr').toString();
     recvData = data.toString();
     const tl1Data = new TL1_COMMON.GetRecvMsg();
     tl1Data.parseHdr(recvData);
-    // console.log('socket: ' + tl1Data);
+    // logger.info('socket: ' + tl1Data);
     const strKey = makeCommKey(tl1Data.ctag);
-    console.log('recv key [%s]', strKey);
+    logger.info('recv key [%s]', strKey);
     CommMap.set(strKey, tl1Data);
-    // console.log(tl1Data);
+    // logger.info(tl1Data);
   });
 
   client.on('timeout', () => {
-    console.log('client occured timeout >> ');
+    logger.info('client occured timeout >> ');
   });
 
   client.on('end', () => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    console.log('client disconnected');
+    logger.info('client disconnected');
   });
 
   client.on('error', (err) => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    console.log(err);
+    logger.info(err);
   });
 
   client.on('close', (err) => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    console.log(err);
+    logger.info(err);
   });
 };
 
 sock.write = function(tid, ctag, msg) {
   const writeOk = client.write(msg);
-  console.log('client send data [%s] and end of write = %s', msg, writeOk);
+  logger.info('client send data [%s] and end of write = %s', msg, writeOk);
   return writeOk;
 };
 
@@ -117,7 +118,7 @@ sock.getRecvData = async function(tid, ctag, errCount) {
     let message = 'not found data, tid: ' + tid + ', ctag: ' + ctag;
     message += ', errCount: ' + errCount;
 
-    console.log(message);
+    logger.info(message);
     return {result: false, data: util.successFalse(500, message)};
     // return util.successFalse(500, message);
   } else {
