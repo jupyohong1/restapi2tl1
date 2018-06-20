@@ -38,8 +38,6 @@ const myFormat = winston.format.printf((info) => {
   return `${getLevelInitial(info.level)} ${info.timestamp} : ${info.message}`;
 });
 
-const tsFormat = () => (new Date()).toLocaleTimeString();
-
 winston.addColors(myLevels.colors);
 const logger = winston.createLogger({
   levels: myLevels.levels,
