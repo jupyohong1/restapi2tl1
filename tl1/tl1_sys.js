@@ -18,7 +18,7 @@ TL1_SYS.parseData2Json = function(TL1RecvData) {
   if (TL1RecvData.code == 'COMPLD') {
     let msg = {
       tid: TL1RecvData.tid,
-      date: TL1RecvData.date + ' ' + TL1RecvData.time,
+      date: TL1RecvData.datetime,
       type: TL1RecvData.type,
       ctag: TL1RecvData.ctag,
       items: [],
@@ -64,8 +64,15 @@ TL1_SYS.parseData2Json = function(TL1RecvData) {
     // return msg;
     return util.successTrue(msg);
   } else {
-    let err = 500;
-    return util.successFalse(err, 'parsing error');
+    let msg = {
+      tid: TL1RecvData.tid,
+      date: TL1RecvData.datetime,
+      type: TL1RecvData.type,
+      ctag: TL1RecvData.ctag,
+      errcode: TL1RecvData.errcode,
+      errtxt: TL1RecvData.errtxt,
+    };
+    return util.successFalse(msg);
   }
 };
 

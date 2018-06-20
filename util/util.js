@@ -10,12 +10,11 @@ util.successTrue = function(data) {
   };
 };
 
-util.successFalse = function(err, message) {
-  if (!err&&!message) message = 'data not found';
+util.successFalse = function(message) {
+  if (!message) message = 'data not found';
   return {
     success: false,
     message: message,
-    errors: (err)? util.parseError(err): null,
     data: null,
   };
 };

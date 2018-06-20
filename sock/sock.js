@@ -29,10 +29,11 @@ sock.connect = function(PORT, IP) {
     recvData = data.toString();
     const tl1Data = new TL1_COMMON.GetRecvMsg();
     tl1Data.parseHdr(recvData);
+    // console.log('socket: ' + tl1Data);
     const strKey = makeCommKey(tl1Data.ctag);
     console.log('recv key [%s]', strKey);
-    // CommMap.set(strKey, recv_data);
     CommMap.set(strKey, tl1Data);
+    // console.log(tl1Data);
   });
 
   client.on('timeout', () => {

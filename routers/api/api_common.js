@@ -4,7 +4,7 @@ const sock = require('../../sock/sock');
 const util = require('../../util/util');
 const API_COMMON = {};
 
-API_COMMON.RTRV = async function(cmd, tid, aid, param) {
+API_COMMON.process = async function(cmd, tid, aid, param) {
   let sendTL1Data = TL1_API.GetSendMsg(cmd, tid, aid, param);
   if (sock.write(sendTL1Data.tid, sendTL1Data.ctag, sendTL1Data.toString())) {
     try {
@@ -27,13 +27,13 @@ API_COMMON.RTRV = async function(cmd, tid, aid, param) {
       }
     } catch (exception) {
       console.log(exception);
-      return util.successFalse(500, exception);
+      return util.successFalse(exception);
     }
   } else {
     let message = 'TL1 Send fail!';
     console.log('return key[%s]', sendTL1Data.ctag);
     console.log(message);
-    return util.successFalse(500, message);
+    return util.successFalse(message);
   }
 };
 

@@ -22,6 +22,8 @@ TL1_COMMON.GetRecvMsg = function() {
   this.ctag = '';
   this.code = '';
   this.items = [];
+  this.errcode = '';
+  this.errtxt = '';
 };
 
 TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
@@ -32,8 +34,11 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
   let epHdr = 0;
   let tmpMsg = msg.trim();
 
+  // console.log(msg);
+
   while ((ep = tmpMsg.indexOf(CRLF, sp)) >= 0) {
     let line = tmpMsg.slice(sp, ep);
+    // console.log('line: %s', line);
     if (i==0) {
       spHdr = 0, epHdr = line.indexOf(' ');
       this.tid = line.slice(spHdr, epHdr);
@@ -46,7 +51,7 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
       this.datetime += ' ' + line.slice(spHdr);
     } else if (i==1) {
       spHdr = 0, epHdr = 2;
-      this.tid = line.slice(spHdr, epHdr).trim();
+      this.type = line.slice(spHdr, epHdr).trim();
 
       spHdr = epHdr+1;
       epHdr = line.indexOf(' ', spHdr);
@@ -55,11 +60,19 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
       spHdr = epHdr+1;
       this.code = line.slice(spHdr);
     } else {
-      spHdr = line.indexOf('"');
-      if (spHdr >= 0) {
-        let item = line.slice(spHdr);
-        // console.log("item: %s", item);
-        this.items.push(item);
+      if (this.code == 'COMPLD') {
+        spHdr = line.indexOf('"');
+        if (spHdr >= 0) {
+          let item = line.slice(spHdr);
+          // console.log('item: %s', item);
+          this.items.push(item);
+        }
+      } else {
+        if (i==2) {
+          this.errcode = line.trim();
+        } else if (i==3) {
+          this.errtxt = line.trim();
+        }
       }
     }
 
@@ -67,6 +80,8 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
     // console.log("TMP_MSG:" + tmp_msg.toString());
     i++;
   }
+
+  // console.log(this);
 };
 
 module.exports = TL1_COMMON;
