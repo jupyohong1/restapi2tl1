@@ -66,7 +66,8 @@ sock.connect = function(PORT, IP) {
 sock.write = function(tid, ctag, msg) {
   if (sock.status == 'CONN') {
     const writeOk = client.write(msg);
-    logger.info(`client send data [${msg}] and end of write = ${writeOk}`);
+    logger.info(`client send data [${msg.slice(0, msg.length-2)}] and \
+end of write = ${writeOk}`);
     return writeOk;
   } else {
     logger.warn('already socket disconnected');
@@ -123,8 +124,8 @@ sock.getRecvData = async function(tid, ctag, errCount) {
   }
 
   if (errCount > 20) {
-    let message = 'not found data, tid: ' + tid + ', ctag: ' + ctag;
-    message += ', errCount: ' + errCount;
+    let message = `\
+not found data, tid: ${tid}, ctag: ${ctag}, errCount: ${errCount}`;
 
     logger.info(message);
     return {result: false, data: util.successFalse(500, message)};

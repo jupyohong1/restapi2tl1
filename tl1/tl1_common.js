@@ -38,7 +38,7 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
 
   while ((ep = tmpMsg.indexOf(CRLF, sp)) >= 0) {
     let line = tmpMsg.slice(sp, ep);
-    // console.log('line: %s', line);
+    // console.log(`line: ${line}`);
     if (i==0) {
       spHdr = 0, epHdr = line.indexOf(' ');
       this.tid = line.slice(spHdr, epHdr);
@@ -64,7 +64,7 @@ TL1_COMMON.GetRecvMsg.prototype.parseHdr = function(msg) {
         spHdr = line.indexOf('"');
         if (spHdr >= 0) {
           let item = line.slice(spHdr);
-          // console.log('item: %s', item);
+          // console.log(`item: ${item}`);
           this.items.push(item);
         }
       } else {

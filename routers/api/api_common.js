@@ -13,12 +13,12 @@ API_COMMON.process = async function(cmd, tid, aid, param) {
       let recvTL1Data =
         await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
       if (recvTL1Data == undefined) {
-        logger.info('Socket RecvData is undefined, retry!');
+        logger.info(`Socket RecvData is undefined, retry!`);
         recvTL1Data =
           await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
       }
 
-      logger.info('return key[%s]', sendTL1Data.ctag);
+      logger.info(`return key [${sendTL1Data.ctag}]`);
       if (recvTL1Data.result) {
         const resTL1Data = TL1_API.parseData2Json(cmd, recvTL1Data.data);
         sock.DeleteCommData(sendTL1Data.tid, sendTL1Data.ctag);
@@ -32,7 +32,7 @@ API_COMMON.process = async function(cmd, tid, aid, param) {
     }
   } else {
     let message = 'TL1 Send fail!';
-    logger.info('return key[%s]', sendTL1Data.ctag);
+    logger.info(`return key[${sendTL1Data.ctag}]`);
     logger.info(message);
     return util.successFalse(message);
   }
