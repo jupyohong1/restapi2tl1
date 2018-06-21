@@ -56,7 +56,10 @@ sock.connect = function(PORT, IP) {
   client.on('close', (err) => {
     sock.bIsConnected = false;
     sock.status = 'DISCONN';
-    logger.warn(err);
+    logger.error('socket closed, reconnect to after 3sec');
+    setTimeout(()=>{
+      sock.connect(PORT, IP);
+    }, 3000);
   });
 };
 
