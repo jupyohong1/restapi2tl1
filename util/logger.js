@@ -1,4 +1,5 @@
 // util/logger.js
+const callerId = require('caller-id');
 const winston = require('winston');
 
 const myLevels = {
@@ -35,11 +36,12 @@ function getLevelInitial(level) {
 }
 
 const myFormat = winston.format.printf((info) => {
-  return `${getLevelInitial(info.level)} ${info.timestamp} : ${info.message}`;
+  return `${getLevelInitial(info.level)} ${info.timestamp} ${info.fileName}/\
+${info.funcName}():${info.lineNumber} - ${info.message}`;
 });
 
 winston.addColors(myLevels.colors);
-const logger = winston.createLogger({
+const myLogger = winston.createLogger({
   levels: myLevels.levels,
   format: winston.format.combine(
     winston.format.timestamp({
@@ -67,5 +69,59 @@ const logger = winston.createLogger({
 });
 
 winston.addColors(myLevels.colors);
+
+/**
+ * return filename, functionname, linenumber
+ * @param {object} caller - callerId.getData()
+ * @return {object} callerInfo
+ */
+function getCallerInfo(caller) {
+  if (caller != undefined) {
+    let fileName = '';
+    let funcName = '';
+    let lineNumber = 0;
+
+    let sp = caller.filePath.lastIndexOf('\\') + 1;
+    let ep = caller.filePath.lastIndexOf('.');
+    fileName = caller.filePath.slice(sp, ep);
+
+    let idx = caller.functionName.lastIndexOf('.');
+    funcName = caller.functionName.slice(idx+1);
+
+    lineNumber = Number(caller.lineNumber);
+
+    return {fileName, funcName, lineNumber};
+  }
+  return null;
+}
+
+const logger = {};
+
+
+logger.error = (message) => {
+  const caller = callerId.getData();
+  myLogger.error(message, getCallerInfo(caller));
+};
+
+logger.warn = (message) => {
+  const caller = callerId.getData();
+  myLogger.warn(message, getCallerInfo(caller));
+};
+
+logger.info = (message) => {
+  const caller = callerId.getData();
+  myLogger.info(message, getCallerInfo(caller));
+};
+
+logger.debug = (message) => {
+  const caller = callerId.getData();
+  myLogger.debug(message, getCallerInfo(caller));
+};
+
+logger.trace = (message) => {
+  const caller = callerId.getData();
+  myLogger.trace(message, getCallerInfo(caller));
+};
+
 
 module.exports = logger;
