@@ -35,7 +35,7 @@ function getLevelInitial(level) {
   }
 }
 
-const myFormat = winston.format.printf((info) => {
+const myFormat = winston.format.printf((info) => {  
   return `${getLevelInitial(info.level)} ${info.timestamp} ${info.fileName}/\
 ${info.funcName}():${info.lineNumber} - ${info.message}`;
 });

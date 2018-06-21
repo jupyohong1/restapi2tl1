@@ -21,7 +21,7 @@ app.use('/api', require('./routers/api/router'));
 // server
 const port = 3000;
 app.listen(port, () => {
-  logger.info('listening on Web port: %d', port);
+  logger.info(`listening on Web port: ${port}`);
 });
 
 // ems connect

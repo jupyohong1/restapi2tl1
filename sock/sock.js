@@ -19,7 +19,7 @@ sock.connect = function(PORT, IP) {
   client = net.connect({port: PORT, host: IP}, () => {
     sock.bIsConnected = true;
     sock.status = 'CONN';
-    logger.info('connect success IP: %s, PORT: %s', IP, PORT);
+    logger.info(`connect success IP: ${IP}, PORT: ${PORT}`);
   });
 
   client.on('data', (data) => {
@@ -27,12 +27,12 @@ sock.connect = function(PORT, IP) {
     sock.bIsReceived = true;
     const strContent = new Buffer(data);
     data = iconv.decode(strContent, 'euckr').toString();
-    recvData = data.toString();
+    sock.recvData = data.toString();
     const tl1Data = new TL1_COMMON.GetRecvMsg();
-    tl1Data.parseHdr(recvData);
+    tl1Data.parseHdr(sock.recvData);
     // logger.info('socket: ' + tl1Data);
     const strKey = makeCommKey(tl1Data.ctag);
-    logger.info('recv key [%s]', strKey);
+    logger.info(`recv key [${strKey}]`);
     CommMap.set(strKey, tl1Data);
     // logger.info(tl1Data);
   });
@@ -66,7 +66,7 @@ sock.connect = function(PORT, IP) {
 sock.write = function(tid, ctag, msg) {
   if (sock.status == 'CONN') {
     const writeOk = client.write(msg);
-    logger.info('client send data [%s] and end of write = %s', msg, writeOk);
+    logger.info(`client send data [${msg}] and end of write = ${writeOk}`);
     return writeOk;
   } else {
     logger.warn('already socket disconnected');
