@@ -5,7 +5,6 @@ util.successTrue = function(data) {
   return {
     success: true,
     message: null,
-    errors: null,
     data: data,
   };
 };
