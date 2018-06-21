@@ -64,9 +64,14 @@ sock.connect = function(PORT, IP) {
 };
 
 sock.write = function(tid, ctag, msg) {
-  const writeOk = client.write(msg);
-  logger.info('client send data [%s] and end of write = %s', msg, writeOk);
-  return writeOk;
+  if (sock.status == 'CONN') {
+    const writeOk = client.write(msg);
+    logger.info('client send data [%s] and end of write = %s', msg, writeOk);
+    return writeOk;
+  } else {
+    logger.warn('already socket disconnected');
+    return 0;
+  }
 };
 
 /**
