@@ -1,98 +1,135 @@
+// sock/sock.js
 const logger = require('../util/logger');
-const net = require('net');
-
-const sock = {};
-let client;
 const iconv = require('iconv-lite');
 const TL1_COMMON = require('../tl1/tl1_common');
-const util = require('../util/util');
+const net = require('net');
 
-const CommMap = new Map();
+/**
+ * Create socket
+ * @param {string} name socket name
+ * @param {string} ip IP address
+ * @param {number} port port number
+ */
+function sock(name, ip, port) {
+  this.ip = ip;
+  this.port = port;
+  this.name = name;
 
-sock.status = 'DISCONN';
-sock.bIsConnected = false;
-sock.recvData = '';
-sock.bIsReceived = false;
+  this.client;
+  this.isConn = false;
+};
 
-sock.connect = function(PORT, IP) {
-  sock.status = 'CONNECTING';
-  client = net.connect({port: PORT, host: IP}, () => {
-    sock.bIsConnected = true;
-    sock.status = 'CONN';
-    logger.info(`connect success IP: ${IP}, PORT: ${PORT}`);
+sock.prototype = {
+  ip: null,
+  getIp: function() {
+    return this.ip;
+  },
+  setIp: function(ip) {
+    this.ip = ip;
+  },
+
+  port: null,
+  getPort: function() {
+    return this.port;
+  },
+  setPort: function(port) {
+    this.port = port;
+  },
+
+  name: null,
+  getName: function() {
+    return this.name;
+  },
+  setName: function(name) {
+    this.name = name;
+  },
+
+  isConn: false,
+  isConnect: function() {
+    return this.isConn;
+  },
+  getConnectInfo: function() {
+    return `sock[${this.name}] is `
+      + (this.isConn) ? 'Connected' : 'Disconnected';
+  },
+
+  isRecv: false,
+
+  dataMap: new Map(),
+  deleteDataMap: function(key) {
+    if (this.dataMap.get(key) != undefined) {
+       dataMap.delete(key);
+    }
+  },
+
+  toString: function() {
+    return `\
+sock[${this.name}], ip[${this.ip}], port[${this.port}], conn[${this.isConn}]`;
+  },
+
+  client: null,
+};
+
+sock.prototype.connect = function() {
+  this.client = net.connect({port: this.port, host: this.ip}, () => {
+    this.isConn = true;
+    logger.info(`\
+sock[${this.name}] connect succes, server: ${this.ip}:${this.port}`);
   });
 
-  client.on('data', (data) => {
-    // logger.info('socket, recv data!!!');
-    sock.bIsReceived = true;
+  this.client.on('data', (data) => {
+    this.isRecv = true;
     const strContent = new Buffer(data);
-    data = iconv.decode(strContent, 'euckr').toString();
-    sock.recvData = data.toString();
-    const tl1Data = new TL1_COMMON.GetRecvMsg();
-    tl1Data.parseHdr(sock.recvData);
-    // logger.info('socket: ' + tl1Data);
-    const strKey = makeCommKey(tl1Data.ctag);
-    logger.info(`recv key [${strKey}]`);
-    CommMap.set(strKey, tl1Data);
-    // logger.info(tl1Data);
+    const recvData = iconv.decode(strContent, 'euckr').toString();
+    const recvMsg = recvData.toString();
+    const recvTL1Data = new TL1_COMMON.GetRecvMsg();
+    recvTL1Data.parseHdr(recvMsg);
+    this.dataMap.set(Number(recvTL1Data.ctag), recvTL1Data);
+    logger.info(`sock[${this.name}] recv data!, ctag[${recvTL1Data.ctag}]`);
   });
 
-  client.on('timeout', () => {
-    logger.info('client occured timeout >> ');
+  this.client.on('timeout', () => {
+    logger.warn(`sock[${this.name}] client occured timeout >> `);
   });
 
-  client.on('end', () => {
-    sock.bIsConnected = false;
-    sock.status = 'DISCONN';
-    logger.warn('client disconnected');
+  this.client.on('end', () => {
+    this.isConn = false;
+    logger.warn(`sock[${this.name}] client disconnected`);
   });
 
-  client.on('error', (err) => {
-    sock.bIsConnected = false;
-    sock.status = 'DISCONN';
-    logger.error(err);
+  this.client.on('error', (err) => {
+    this.isConn = false;
+    logger.error(`sock[${this.name}] ${err}`);
   });
 
-  client.on('close', (err) => {
-    sock.bIsConnected = false;
-    sock.status = 'DISCONN';
-    logger.error('socket closed, reconnect to after 3sec');
+  this.client.on('close', () => {
+    this.isConn = false;
+    logger.error(`sock[${this.name}] closed, reconnect to after 3sec`);
     setTimeout(()=>{
-      sock.connect(PORT, IP);
+      this.connect();
     }, 3000);
   });
 };
 
-sock.write = function(tid, ctag, msg) {
-  if (sock.status == 'CONN') {
-    const writeOk = client.write(msg);
-    logger.info(`client send data [${msg.slice(0, msg.length-2)}] and \
-end of write = ${writeOk}`);
+sock.prototype.send = function(ctag, msg) {
+  let writeOk = false;
+  if (this.isConn) {
+    writeOk = this.client.write(msg);
+    logger.info(`sock[${this.name}] \
+send msg[${Number(ctag)}, ${msg.substr(0, msg.length-2)}], result: ${writeOk}`);
     return writeOk;
-  } else {
-    logger.warn('already socket disconnected');
-    return 0;
   }
+  return writeOk;
 };
 
-/**
- * parse to number.
- * @param {obj} ctag Number Object
- * @return {int} Number(ctag)
- */
-function makeCommKey(ctag) {
-  return Number(ctag);
-}
-
-sock._promise = function(tid, ctag) {
+sock.prototype._promise = function(tid, ctag) {
   return new Promise(((resolve, reject) => {
     setTimeout(() => {
-      const key = makeCommKey(ctag);
-      if (CommMap.size <= 0) {
+      if (this.dataMap.size <= 0) {
         reject(new Error('Error'));
       } else {
-        const obj = CommMap.get(key);
-        if (CommMap.get(key) == undefined) {
+        const obj = this.dataMap.get(Number(ctag));
+        if (obj == undefined) {
           reject(new Error('Error'));
         } else {
           resolve(obj);
@@ -102,43 +139,31 @@ sock._promise = function(tid, ctag) {
   }));
 };
 
-sock.getRecvData = async function(tid, ctag, errCount) {
-  let recvData;
-  let bIsReceived = false;
+sock.prototype.recv = async function(tid, ctag, errCount) {
+  let recvTL1Data;
+  let isRecvOk = false;
+  let error = errCount;
 
-  await sock._promise(tid, ctag)
+  await this._promise(tid, ctag)
   .then(function(obj) {
-    recvData = obj;
-    bIsReceived = true;
-  }, function(error) {
-    errCount++;
+    recvTL1Data = obj;
+    isRecvOk = true;
+  }, function() {
+    error += 1;
   });
 
-  if (bIsReceived) {
-    if (recvData != undefined) {
-      return {result: true, data: recvData};
-      // return recvData;
-    } else {
-      errCount++;
+  if (isRecvOk) {
+    if (recvTL1Data != undefined) {
+      return {result: true, data: recvTL1Data, msg: null};
     }
   }
 
-  if (errCount > 20) {
-    let message = `\
-not found data, tid: ${tid}, ctag: ${ctag}, errCount: ${errCount}`;
-
-    logger.info(message);
-    return {result: false, data: util.successFalse(500, message)};
-    // return util.successFalse(500, message);
+  if (error > 20) {
+    const message = `\
+not found data, tid: ${tid}, ctag: ${ctag}, errCount: ${error}`;
+    return {result: false, data: null, msg: message};
   } else {
-    await sock.getRecvData(tid, ctag, errCount);
-  }
-};
-
-sock.DeleteCommData = function(tid, ctag) {
-  const key = makeCommKey(ctag);
-  if (CommMap.get(key) != undefined) {
-    CommMap.delete(key);
+    await this.recv(tid, ctag, error);
   }
 };
 

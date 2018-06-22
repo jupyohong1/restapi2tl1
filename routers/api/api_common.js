@@ -1,40 +1,51 @@
 // routers/api/api_common.js
 const logger = require('../../util/logger');
 const TL1_API = require('../../tl1/tl1_api');
-const sock = require('../../sock/sock');
 const util = require('../../util/util');
+const sockMgr = require('../../sock/sock_mgr');
+
 const API_COMMON = {};
 
-API_COMMON.process = async function(cmd, tid, aid, param) {
-  let sendTL1Data = TL1_API.GetSendMsg(cmd, tid, aid, param);
-  if (sock.write(sendTL1Data.tid, sendTL1Data.ctag, sendTL1Data.toString())) {
+API_COMMON.cmdProc = async function(cmd, tid, aid, param) {
+  const cmdSock = sockMgr.cmdSock;
+  logger.trace(cmdSock.getConnectInfo());
+  if (cmdSock.isConnect()) {
     try {
-      const errCount = 0;
-      let recvTL1Data =
-        await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
-      if (recvTL1Data == undefined) {
-        logger.info(`Socket RecvData is undefined, retry!`);
-        recvTL1Data =
-          await sock.getRecvData(sendTL1Data.tid, sendTL1Data.ctag, errCount);
-      }
+      let sendTL1Data = TL1_API.GetSendMsg(cmd, tid, aid, param);
+      if (cmdSock.send(sendTL1Data.ctag, sendTL1Data.toString())) {
+        let recvData = await cmdSock.recv(
+          sendTL1Data.tid,
+          sendTL1Data.ctag,
+          0);
+        if (recvData == undefined) {
+          logger.info(`Socket RecvData is undefined, retry!`);
+          recvData = await cmdSock.recv(
+            sendTL1Data.tid,
+            sendTL1Data.ctag,
+            0);
+        }
 
-      logger.info(`return key [${sendTL1Data.ctag}]`);
-      if (recvTL1Data.result) {
-        const resTL1Data = TL1_API.parseData2Json(cmd, recvTL1Data.data);
-        sock.DeleteCommData(sendTL1Data.tid, sendTL1Data.ctag);
-        return resTL1Data;
+        if (recvData.result) {
+          const resTL1Data = TL1_API.parseData2Json(cmd, recvData.data);
+          logger.info(`RecvTL1Data.ctag[${recvData.data.ctag}]`);
+          cmdSock.deleteDataMap(recvData.data.ctag);
+          return resTL1Data;
+        } else {
+          return util.successFalse(recvData.msg);
+        }
       } else {
-        return recvTL1Data.data;
+        const msg = `TL1 send fail`;
+        logger.warn(msg);
+        return util.successFalse(msg);
       }
     } catch (exception) {
-      logger.info(exception);
-      return util.successFalse(exception);
+      logger.warn(exception);
+      return util.successFalse(exception.toString());
     }
   } else {
-    let message = 'TL1 Send fail!';
-    logger.info(`return key[${sendTL1Data.ctag}]`);
-    logger.info(message);
-    return util.successFalse(message);
+    const msg = cmdSock.getConnectInfo();
+    logger.trace(msg);
+    return util.successFalse(msg);
   }
 };
 

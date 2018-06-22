@@ -9,7 +9,7 @@ router.get('/', async function(req, res) {
   const tid = '';
   const aid = '';
   const param = '';
-  res.json(await API_COMMON.process(cmd, tid, aid, param));
+  res.json(await API_COMMON.cmdProc(cmd, tid, aid, param));
 });
 
 router.get('/:devtype', async function(req, res) {
@@ -17,7 +17,7 @@ router.get('/:devtype', async function(req, res) {
   const tid = '';
   const aid = '';
   const param = req.params.devtype;
-  res.json(await API_COMMON.process(cmd, tid, aid, param));
+  res.json(await API_COMMON.cmdProc(cmd, tid, aid, param));
 });
 
 

@@ -9,7 +9,7 @@ router.post('/', async function(req, res) {
   const tid = req.body.tid;
   const aid = req.body.aid;
   const param = req.body.sysname;
-  res.json(await API_COMMON.process(cmd, tid, aid, param));
+  res.json(await API_COMMON.cmdProc(cmd, tid, aid, param));
 });
 
 module.exports = router;

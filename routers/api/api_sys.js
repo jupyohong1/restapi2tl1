@@ -9,7 +9,7 @@ router.get('/:tid', async function(req, res) {
   const tid = req.params.tid;
   const aid = '';
   const param = '';
-  res.json(await API_COMMON.process(cmd, tid, aid, param));
+  res.json(await API_COMMON.cmdProc(cmd, tid, aid, param));
 });
 
 module.exports = router;
