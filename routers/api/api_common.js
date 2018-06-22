@@ -8,7 +8,6 @@ const API_COMMON = {};
 
 API_COMMON.cmdProc = async function(cmd, tid, aid, param) {
   const cmdSock = sockMgr.cmdSock;
-  logger.trace(cmdSock.getConnectInfo());
   if (cmdSock.isConnect()) {
     try {
       let sendTL1Data = TL1_API.GetSendMsg(cmd, tid, aid, param);

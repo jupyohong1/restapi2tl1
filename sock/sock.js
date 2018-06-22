@@ -49,8 +49,8 @@ sock.prototype = {
     return this.isConn;
   },
   getConnectInfo: function() {
-    return `sock[${this.name}] is `
-      + (this.isConn) ? 'Connected' : 'Disconnected';
+    const state = (this.isConn) ? 'Connected' : 'Disconnected';
+    return `sock[${this.name}] is ${state}`;
   },
 
   isRecv: false,
