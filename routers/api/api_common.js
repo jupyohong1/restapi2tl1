@@ -12,16 +12,10 @@ API_COMMON.cmdProc = async function(cmd, tid, aid, param) {
     try {
       let sendTL1Data = TL1_API.GetSendMsg(cmd, tid, aid, param);
       if (cmdSock.send(sendTL1Data.ctag, sendTL1Data.toString())) {
-        let recvData = await cmdSock.recv(
-          sendTL1Data.tid,
-          sendTL1Data.ctag,
-          0);
+        let recvData = await cmdSock.recv(sendTL1Data.ctag, 0);
         if (recvData == undefined) {
           logger.info(`Socket RecvData is undefined, retry!`);
-          recvData = await cmdSock.recv(
-            sendTL1Data.tid,
-            sendTL1Data.ctag,
-            0);
+          recvData = await cmdSock.recv(sendTL1Data.ctag, 0);
         }
 
         if (recvData.result) {

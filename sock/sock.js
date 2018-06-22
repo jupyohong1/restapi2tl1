@@ -122,7 +122,7 @@ send msg[${Number(ctag)}, ${msg.substr(0, msg.length-2)}], result: ${writeOk}`);
   return writeOk;
 };
 
-sock.prototype._promise = function(tid, ctag) {
+sock.prototype._promise = function(ctag) {
   return new Promise(((resolve, reject) => {
     setTimeout(() => {
       if (this.dataMap.size <= 0) {
@@ -139,12 +139,12 @@ sock.prototype._promise = function(tid, ctag) {
   }));
 };
 
-sock.prototype.recv = async function(tid, ctag, errCount) {
+sock.prototype.recv = async function(ctag, errCount) {
   let recvTL1Data;
   let isRecvOk = false;
   let error = errCount;
 
-  await this._promise(tid, ctag)
+  await this._promise(ctag)
   .then(function(obj) {
     recvTL1Data = obj;
     isRecvOk = true;
@@ -163,8 +163,44 @@ sock.prototype.recv = async function(tid, ctag, errCount) {
 not found data, tid: ${tid}, ctag: ${ctag}, errCount: ${error}`;
     return {result: false, data: null, msg: message};
   } else {
-    await this.recv(tid, ctag, error);
+    await this.recv(ctag, error);
   }
+};
+
+sock.prototype._promiseRep = function() {
+  return new Promise(((resolve, reject) => {
+    setTimeout(() => {
+      if (this.dataMap.size <= 0) {
+        reject(new Error('Error'));
+      } else {
+        this.dataMap.forEach( function(item) {
+          if (item != undefined) {
+            reject(new Error('Error'));
+          } else {
+            resolve(item);
+          }
+        });
+      }
+    }, 100);
+  }));
+};
+
+sock.prototype.recvRep = async function() {
+  let recvTL1Data;
+  let isRecvOk = false;
+
+  await this._promiseRep()
+  .then(function(obj) {
+    recvTL1Data = obj;
+    isRecvOk = true;
+  });
+
+  if (isRecvOk) {
+    if (recvTL1Data != undefined) {
+      return {result: true, data: recvTL1Data, msg: null};
+    }
+  }
+  await this.recvRep();
 };
 
 module.exports = sock;
