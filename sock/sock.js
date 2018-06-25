@@ -58,8 +58,11 @@ sock.prototype = {
   dataMap: new Map(),
   deleteDataMap: function(key) {
     if (this.dataMap.get(key) != undefined) {
-       dataMap.delete(key);
+       this.dataMap.delete(key);
     }
+  },
+  getDataMapCount: function(key) {
+    return this.dataMap.size;
   },
 
   toString: function() {
@@ -84,7 +87,11 @@ sock[${this.name}] connect succes, server: ${this.ip}:${this.port}`);
     const recvMsg = recvData.toString();
     const recvTL1Data = new TL1_COMMON.GetRecvMsg();
     recvTL1Data.parseHdr(recvMsg);
-    this.dataMap.set(Number(recvTL1Data.ctag), recvTL1Data);
+    if (this.name == 'CMD') {
+      this.dataMap.set(Number(recvTL1Data.ctag), recvTL1Data);
+    } else {
+      this.dataMap.set(Number(recvTL1Data.ctag), recvMsg);
+    }
     logger.info(`sock[${this.name}] recv data!, ctag[${recvTL1Data.ctag}]`);
   });
 
@@ -173,11 +180,11 @@ sock.prototype._promiseRep = function() {
       if (this.dataMap.size <= 0) {
         reject(new Error('Error'));
       } else {
-        this.dataMap.forEach( function(item) {
-          if (item != undefined) {
+        this.dataMap.forEach( function(value, key) {
+          if (value == undefined) {
             reject(new Error('Error'));
           } else {
-            resolve(item);
+            resolve({value, key});
           }
         });
       }
@@ -186,18 +193,18 @@ sock.prototype._promiseRep = function() {
 };
 
 sock.prototype.recvRep = async function() {
-  let recvTL1Data;
+  let recvValue;
   let isRecvOk = false;
 
   await this._promiseRep()
-  .then(function(obj) {
-    recvTL1Data = obj;
+  .then(function(value, key) {
+    recvValue = value;
     isRecvOk = true;
   });
 
   if (isRecvOk) {
-    if (recvTL1Data != undefined) {
-      return {result: true, data: recvTL1Data, msg: null};
+    if (recvValue != undefined) {
+      return {result: true, data: recvValue};
     }
   }
   await this.recvRep();

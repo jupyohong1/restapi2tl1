@@ -3,8 +3,7 @@ const express = require('express');
 const logger = require('./util/logger');
 const app = express();
 const bodyParser = require('body-parser');
-// const sock = require('./sock/sock');
-const EMSSock = require('./sock/sock_mgr');
+const socketMgr = require('./sock/sock_mgr');
 
 // Middlewares
 app.use(bodyParser.json());
@@ -19,9 +18,14 @@ app.use((req, res, next) => {
 // API
 app.use('/api', require('./routers/api/router'));
 
+// repPort
+app.use('/report', require('./routers/report'));
+
 // server
+const http = require('http').Server(app);
 const port = 3000;
-app.listen(port, () => {
+socketMgr.createWebSocket(http);
+http.listen(port, function() {
   logger.trace(`listening on Web port: ${port}`);
 });
 
@@ -32,4 +36,5 @@ const emsIP = '127.0.0.1';
 // var ems_ip = '210.114.89.124';
 // sock.connect(emsPort[0], emsIP);
 
-EMSSock.createSocket(emsIP, emsPort[0], emsPort[1]);
+socketMgr.createEMSSocket(emsIP, emsPort[0], emsPort[1]);
+socketMgr.repProc();

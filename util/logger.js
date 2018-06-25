@@ -87,8 +87,8 @@ function getCallerInfo(caller) {
     let ep = caller.filePath.lastIndexOf('.');
     fileName = caller.filePath.slice(sp, ep);
 
-    let idx = caller.functionName.lastIndexOf('.');
-    funcName = caller.functionName.slice(idx+1);
+    // let idx = caller.functionName.lastIndexOf('.');
+    // funcName = caller.functionName.slice(idx+1);
 
     lineNumber = Number(caller.lineNumber);
 
