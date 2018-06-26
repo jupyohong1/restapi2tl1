@@ -18,8 +18,7 @@ paths:
         name: "devtype"
         type: "string"
         default: ""
-        description: "장치 유형"
-        example: "U1080"
+        description: "장치 유형 (ex. U1080, U6000P)"        
         required: false
       responses:
         200:
