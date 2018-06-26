@@ -1,0 +1,112 @@
+tags:
+  - name: "시스템공통"
+    description: 시스템 공통 API
+schemes:
+- "http"
+paths:
+  /sys/{tid}:
+    get:
+      tags:
+      - "시스템공통"
+      summary: "시스템정보 조회"
+      description: "시스템정보를 조회한다."
+      operationId: "RTRV-SYS"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "tid"
+        description: "시스템 TID, EMS API 'NET'을 통해 TID 조회 가능"
+        example: "192.168.4.208-S1"
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/RTRV-SYS"
+  /sys/:
+    post:
+      tags:
+      - "시스템공통"
+      summary: "시스템 정보 설정"
+      description: "시스템 정보를 설정한다."
+      operationId: "PRV-SYS"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "시스템 정보"
+        required: true
+        schema:
+          $ref: "#/definitions/PRV-SYS"
+      responses:
+        200:
+          description: "successful operation"
+
+components:
+  PRV-SYS:
+    type: ""
+
+
+
+
+
+definitions:
+  RTRV-SYS:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        default: true
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          tid:
+            type: "string"
+          date:
+            type: "string"
+          ctype:
+            type: "string"
+          ctag:
+            type: "string"
+          items:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                tid:
+                  type: "string"
+                networkid:
+                  type: "string"
+                networkname:
+                  type: "string"
+                nettype:
+                  type: "string"
+                nodeid:
+                  type: "string"
+                shelfid:
+                  type: "string"
+                nodename:
+                  type: "string"
+                nodetype:
+                  type: "string"
+                vendor:
+                  type: "string"
+                ip:
+                  type: "string"
+                subnet:
+                  type: "string"
+                gateway:
+                  type: "string"
+  PRV-SYS:
+    type: "object"
+    properties:
+      tid:
+        type: "string"
+        example: "192.168.4.208-S1"
+      sysname:
+        type: "string"
+        example: "208"

@@ -1,11 +1,11 @@
 // routers/api/api_net.js
-const API_COMMON = require('./api_common');
+const API_COMMON = require('../api_common');
 const express = require('express');
 const router = express.Router();
 
-// get net
+// RTRV-NET
 router.get('/', async function(req, res) {
-  const cmd = 'NET';
+  const cmd = 'RTRV-NET';
   const tid = '';
   const aid = '';
   const param = '';
@@ -13,7 +13,7 @@ router.get('/', async function(req, res) {
 });
 
 router.get('/:devtype', async function(req, res) {
-  const cmd = 'NET';
+  const cmd = 'RTRV-NET';
   const tid = '';
   const aid = '';
   const param = req.params.devtype;

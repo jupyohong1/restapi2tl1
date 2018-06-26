@@ -25,17 +25,17 @@ sockMgr.createWebSocket = function(http) {
 
 sockMgr.repProc = async function() {
   try {
-    if (sockMgr.webSock.getClientCount() > 0) {
-      while (sockMgr.repSock.getDataMapCount() > 0) {
-        let recvData = await sockMgr.repSock.recvRep();
-        if (recvData == undefined) {
-          recvData = await sockMgr.repSock.recvRep();
-        }
+    while (sockMgr.repSock.getDataMapCount() > 0) {
+      let recvData = await sockMgr.repSock.recvRep();
+      if (recvData == undefined) {
+        recvData = await sockMgr.repSock.recvRep();
+      }
 
-        if (recvData.result) {
+      if (recvData.result) {
+        if (sockMgr.webSock.getClientCount() > 0) {
           sockMgr.webSock.send(recvData.data.value);
-          sockMgr.repSock.deleteDataMap(recvData.data.key);
         }
+        sockMgr.repSock.deleteDataMap(recvData.data.key);
       }
     }
   } catch (exception) {

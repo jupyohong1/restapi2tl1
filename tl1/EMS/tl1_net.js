@@ -1,10 +1,10 @@
 // tl1/tl1_net.js
-const util = require('../util/util');
-const TL1_COMMON = require('./tl1_common');
+const util = require('../../util/util');
+const TL1_COMMON = require('../tl1_common');
 
 const TL1_NET = {};
 
-TL1_NET.GetSendMsg = function(param) {
+TL1_NET.GetRTRVSendMsg = function(param) {
   const msg = new TL1_COMMON.GetSendMsg();
 
   msg.cmd = 'RTRV-NET';
@@ -16,12 +16,12 @@ TL1_NET.GetSendMsg = function(param) {
   return msg;
 };
 
-TL1_NET.parseData2Json = function(TL1RecvData) {
+TL1_NET.parseRTRVData2Json = function(TL1RecvData) {
   if (TL1RecvData.code == 'COMPLD') {
     let msg = {
       tid: TL1RecvData.tid,
       date: TL1RecvData.datetime,
-      type: TL1RecvData.type,
+      ctype: TL1RecvData.type,
       ctag: TL1RecvData.ctag,
       items: [],
     };

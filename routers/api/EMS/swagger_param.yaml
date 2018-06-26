@@ -1,0 +1,60 @@
+tags:
+  - name: "EMS"
+    description: EMS서버와 통신하는 API
+schemes:
+- "http"
+paths:
+  /net/{devtype}:
+    get:
+      tags:
+      - "EMS"
+      summary: "EMS에 등록된 모든 NE 정보 조회"
+      description: "EMS에 등록된 모든 NE의 정보를 조회한다.\n초기에 관리할 수 있는 NE의 TID정보를 얻을 수 있다."
+      operationId: "RTRV-NET"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "devtype"
+        type: "string"
+        default: ""
+        description: "장치 유형"
+        example: "U1080"
+        required: false
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/RTRV-NET"
+
+definitions:
+  RTRV-NET:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+        default: true
+      message:
+        type: "string"
+      data:
+        type: "object"
+        properties:
+          tid:
+            type: "string"
+          date:
+            type: "string"
+          ctype:
+            type: "string"
+          ctag:
+            type: "string"
+          items:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                tid:
+                  type: "string"
+                neName:
+                  type: "string"
+                connStat:
+                  type: "string"

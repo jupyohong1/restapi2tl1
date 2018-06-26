@@ -2,8 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-router.use('/net', require('./api_net'));
-router.use('/sys', require('./api_sys'));
-router.use('/sysname', require('./api_sysname'));
+// EMS
+router.use('/net', require('./EMS/api_net'));
+
+// sys_common
+router.use('/sys', require('./SYS_COMMON/api_sys'));
 
 module.exports = router;
