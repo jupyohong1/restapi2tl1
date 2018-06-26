@@ -36,21 +36,13 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "시스템 정보"
+        description: "시스템 TID 및 시스템 이름"
         required: true
         schema:
           $ref: "#/definitions/PRV-SYS"
       responses:
         200:
           description: "successful operation"
-
-components:
-  PRV-SYS:
-    type: ""
-
-
-
-
 
 definitions:
   RTRV-SYS:
